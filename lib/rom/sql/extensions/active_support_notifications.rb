@@ -22,4 +22,5 @@ module ROM
   end
 end
 
-Sequel::Database.send(:prepend, ROM::SQL::ActiveSupportInstrumentation)
+# NOTE: removed due to a stack level too deep error
+# Sequel::Database.send(:prepend, ROM::SQL::ActiveSupportInstrumentation)
