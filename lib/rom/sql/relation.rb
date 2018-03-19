@@ -38,7 +38,9 @@ module ROM
           dataset do
             # TODO: feels strange to do it here - we need a new hook for this during finalization
             klass.define_default_views!
-            self
+
+            schema = klass.schema
+            select(*schema.map(&:to_sql_name)).order(*schema.project(*schema.primary_key_names).qualified.map(&:to_sql_name))
           end
         end
       end
