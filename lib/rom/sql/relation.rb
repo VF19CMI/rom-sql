@@ -35,32 +35,12 @@ module ROM
         super
 
         klass.class_eval do
-          schema_inferrer -> (name, gateway) do
-            inferrer_for_db = ROM::SQL::Schema::Inferrer.get(gateway.connection.database_type.to_sym)
-            begin
-              inferrer_for_db.new.call(name, gateway)
-            rescue Sequel::Error => e
-              inferrer_for_db.on_error(klass, e)
-              ROM::Schema::DEFAULT_INFERRER.()
-            end
-          end
-
           dataset do
             # TODO: feels strange to do it here - we need a new hook for this during finalization
             klass.define_default_views!
             schema = klass.schema
 
-            table = opts[:from].first
-
-            if db.table_exists?(table)
-              if schema
-                select(*schema.map(&:to_sql_name)).order(*schema.project(*schema.primary_key_names).qualified.map(&:to_sql_name))
-              else
-                select(*columns).order(*klass.primary_key_columns(db, table))
-              end
-            else
-              self
-            end
+            select(*schema.map(&:to_sql_name)).order(*schema.project(*schema.primary_key_names).qualified.map(&:to_sql_name))
           end
         end
       end
